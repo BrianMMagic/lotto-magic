@@ -5,23 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lotto Ticket Generator</title>
 <style>
+  * { box-sizing: border-box; }
   body { font-family: -apple-system, sans-serif; background: #1a1a2e; color: #eee; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-  h1 { font-size: 1.4em; margin-bottom: 16px; }
-  input { font-size: 1.1em; padding: 10px 14px; border-radius: 10px; border: none; width: 280px; text-align: center; margin-bottom: 12px; }
-  button { font-size: 1.1em; padding: 12px 32px; border-radius: 10px; border: none; background: #e63946; color: white; font-weight: bold; cursor: pointer; margin-bottom: 20px; }
+  h1 { font-size: 1.4em; margin-bottom: 6px; }
+  .subtitle { font-size: 0.85em; color: #aaa; margin-bottom: 16px; }
+  .balls { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-end; }
+  .ball-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .ball-wrap label { font-size: 0.7em; color: #aaa; }
+  .ball-wrap input {
+    width: 48px; height: 48px; font-size: 1.4em; font-weight: bold;
+    text-align: center; border-radius: 50%; border: 2px solid #555;
+    background: #fff; color: #222; outline: none;
+    -moz-appearance: textfield;
+  }
+  .ball-wrap input:focus { border-color: #e63946; }
+  .ball-wrap.pb input { background: #ff0; border-color: #cc0; color: #222; }
+  .ball-wrap.pb label { color: #ff0; }
+  button { font-size: 1.1em; padding: 12px 32px; border-radius: 10px; border: none; background: #e63946; color: white; font-weight: bold; cursor: pointer; margin-bottom: 20px; margin-top: 8px; }
   button:active { opacity: 0.8; }
   canvas { border-radius: 8px; max-width: 100%; }
-  #hint { font-size: 0.8em; color: #aaa; margin-top: 8px; }
-  #error { color: #ff6b6b; margin-bottom: 8px; display: none; }
+  #hint { font-size: 0.8em; color: #aaa; margin-top: 8px; display: none; }
+  #error { color: #ff6b6b; margin-bottom: 8px; font-size: 0.9em; display: none; }
+  .debug-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; font-size: 0.8em; color: #aaa; }
+  .debug-row input[type=checkbox] { width: 16px; height: 16px; }
 </style>
 </head>
 <body>
 <h1>Powerball Ticket Generator</h1>
-<input id="nums" type="text" placeholder="19 23 29 49 50 26" maxlength="20">
-<div id="error">Enter 6 numbers (last is Powerball)</div>
+<p class="subtitle">Enter your 5 numbers + Powerball</p>
+
+<div class="balls">
+  <div class="ball-wrap"><label>1</label><input id="b1" type="number" min="1" max="69" inputmode="numeric"></div>
+  <div class="ball-wrap"><label>2</label><input id="b2" type="number" min="1" max="69" inputmode="numeric"></div>
+  <div class="ball-wrap"><label>3</label><input id="b3" type="number" min="1" max="69" inputmode="numeric"></div>
+  <div class="ball-wrap"><label>4</label><input id="b4" type="number" min="1" max="69" inputmode="numeric"></div>
+  <div class="ball-wrap"><label>5</label><input id="b5" type="number" min="1" max="69" inputmode="numeric"></div>
+  <div class="ball-wrap pb"><label>PB</label><input id="b6" type="number" min="1" max="26" inputmode="numeric"></div>
+</div>
+
+<div id="error">Please fill in all 6 numbers.</div>
+<div class="debug-row"><input type="checkbox" id="dbg"> Show debug overlay</div>
 <button onclick="generate()">Generate Ticket</button>
 <canvas id="c" width="699" height="786" style="display:none"></canvas>
-<div id="hint" style="display:none">Long-press image to save to Photos</div>
+<div id="hint">Long-press image to save to Photos</div>
 
 <script>
 var SM = {
@@ -57,6 +83,16 @@ var dateX = [200, 212, 230, 242, 260, 272, 284, 296];
 var timeX = [318, 330, 348, 360, 376, 388];
 var numsX = [52, 74, 110, 132, 168, 190, 226, 248, 284, 306, 430, 452];
 
+// Auto-advance to next input after 2 digits
+var inputs = ['b1','b2','b3','b4','b5','b6'];
+inputs.forEach(function(id, idx) {
+    document.getElementById(id).addEventListener('input', function() {
+        if (this.value.length >= 2 && idx < inputs.length - 1) {
+            document.getElementById(inputs[idx + 1]).focus();
+        }
+    });
+});
+
 function loadImg(b64) {
     return new Promise(function(res, rej) {
         var img = new Image();
@@ -66,20 +102,20 @@ function loadImg(b64) {
     });
 }
 
-function digits2(str) {
-    var s = str.toString().padStart(2, '0');
+function digits2(n) {
+    var s = n.toString().padStart(2, '0');
     return [s[0], s[1]];
 }
 
 function generate() {
     var errEl = document.getElementById('error');
     errEl.style.display = 'none';
-    var raw = document.getElementById('nums').value.trim().split(/\s+/);
-    if (raw.length !== 6 || raw.some(function(n) { return isNaN(parseInt(n)); })) {
+
+    var vals = inputs.map(function(id) { return parseInt(document.getElementById(id).value); });
+    if (vals.some(isNaN)) {
         errEl.style.display = 'block';
         return;
     }
-    var nums = raw.map(function(n) { return parseInt(n); });
 
     var now = new Date();
     var mm = digits2(now.getMonth() + 1);
@@ -93,12 +129,8 @@ function generate() {
     var timeDigits = [hh[0], hh[1], mn[0], mn[1], ss[0], ss[1]];
 
     var numDigits = [];
-    for (var i = 0; i < 5; i++) {
-        var d = digits2(nums[i]);
-        numDigits.push(d[0], d[1]);
-    }
-    var pb = digits2(nums[5]);
-    numDigits.push(pb[0], pb[1]);
+    for (var i = 0; i < 5; i++) { var d = digits2(vals[i]); numDigits.push(d[0], d[1]); }
+    var pb = digits2(vals[5]); numDigits.push(pb[0], pb[1]);
 
     var loads = [loadImg(BLANK)];
     dateDigits.forEach(function(d) { loads.push(loadImg(SM[d])); });
@@ -110,10 +142,22 @@ function generate() {
         var ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(imgs[0], 0, 0);
+
         var i = 1;
         for (var k = 0; k < dateX.length; k++) { ctx.drawImage(imgs[i++], dateX[k], DATE_Y); }
         for (var k = 0; k < timeX.length; k++) { ctx.drawImage(imgs[i++], timeX[k], TIME_Y); }
         for (var k = 0; k < numsX.length; k++) { ctx.drawImage(imgs[i++], numsX[k], NUMS_Y); }
+
+        if (document.getElementById('dbg').checked) {
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 1;
+            ctx.font = '9px monospace';
+            ctx.fillStyle = 'red';
+            dateX.forEach(function(x) { ctx.strokeRect(x, DATE_Y, 12, 16); ctx.fillText(x+','+DATE_Y, x, DATE_Y-2); });
+            timeX.forEach(function(x) { ctx.strokeRect(x, TIME_Y, 12, 16); ctx.fillText(x+','+TIME_Y, x, TIME_Y-2); });
+            numsX.forEach(function(x) { ctx.strokeRect(x, NUMS_Y, 20, 28); ctx.fillText(x+','+NUMS_Y, x, NUMS_Y-2); });
+        }
+
         canvas.style.display = 'block';
         document.getElementById('hint').style.display = 'block';
     });

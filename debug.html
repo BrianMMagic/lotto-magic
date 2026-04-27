@@ -70,24 +70,31 @@ button.copy-btn:active { opacity: 0.75; }
 <div id="sidebar">
   <h1>LOTTO COORD TUNER</h1>
 
+  <div class="section">
+    <div class="section-title">Background</div>
+    <div class="srow" style="gap:8px;">
+      <button class="copy-btn" id="bgToggle" onclick="toggleBg()" style="flex:1;padding:5px 8px;">Show Blank</button>
+    </div>
+  </div>
+
   <!-- Numbers row -->
   <div class="section">
     <div class="section-title" style="color:#ff8080">Numbers row</div>
     <div class="srow"><label style="color:#ff8080">Y pos</label><input type="range" id="numsY" min="350" max="620" value="484"><span class="val" id="numsYv">484</span></div>
-    <div class="srow"><label style="color:#ff8080">X start</label><input type="range" id="numsX0" min="0" max="300" value="77"><span class="val" id="numsX0v">77</span></div>
-    <div class="srow"><label style="color:#ff8080">Width</label><input type="range" id="lgW" min="6" max="60" value="17"><span class="val" id="lgWv">17 × 23</span></div>
-    <div class="srow"><label style="color:#ff8080">Pair gap</label><input type="range" id="numPairGap" min="0" max="30" value="3"><span class="val" id="numPairGapv">3</span></div>
-    <div class="srow"><label style="color:#ff8080">Group gap</label><input type="range" id="numGroupGap" min="0" max="60" value="20"><span class="val" id="numGroupGapv">20</span></div>
-    <div class="srow"><label style="color:#ff8080">PB gap</label><input type="range" id="pbGap" min="0" max="250" value="230"><span class="val" id="pbGapv">230</span></div>
+    <div class="srow"><label style="color:#ff8080">X start</label><input type="range" id="numsX0" min="0" max="300" value="86"><span class="val" id="numsX0v">86</span></div>
+    <div class="srow"><label style="color:#ff8080">Width</label><input type="range" id="lgW" min="6" max="60" value="19"><span class="val" id="lgWv">19 × 26</span></div>
+    <div class="srow"><label style="color:#ff8080">Pair gap</label><input type="range" id="numPairGap" min="0" max="30" value="8"><span class="val" id="numPairGapv">8</span></div>
+    <div class="srow"><label style="color:#ff8080">Group gap</label><input type="range" id="numGroupGap" min="0" max="60" value="28"><span class="val" id="numGroupGapv">28</span></div>
+    <div class="srow"><label style="color:#ff8080">PB gap</label><input type="range" id="pbGap" min="0" max="250" value="109"><span class="val" id="pbGapv">109</span></div>
   </div>
 
   <!-- Date row -->
   <div class="section">
     <div class="section-title" style="color:#6496ff">Date row (MM/DD/YYYY)</div>
     <div class="srow"><label style="color:#6496ff">Y pos</label><input type="range" id="dateY" min="300" max="500" value="384"><span class="val" id="dateYv">384</span></div>
-    <div class="srow"><label style="color:#6496ff">X start</label><input type="range" id="dateX0" min="0" max="500" value="283"><span class="val" id="dateX0v">283</span></div>
-    <div class="srow"><label style="color:#6496ff">Width</label><input type="range" id="smW" min="3" max="30" value="7"><span class="val" id="smWv">7 × 14</span></div>
-    <div class="srow"><label style="color:#6496ff">Char gap</label><input type="range" id="dateGap" min="0" max="20" value="2"><span class="val" id="dateGapv">2</span></div>
+    <div class="srow"><label style="color:#6496ff">X start</label><input type="range" id="dateX0" min="0" max="500" value="286"><span class="val" id="dateX0v">286</span></div>
+    <div class="srow"><label style="color:#6496ff">Width</label><input type="range" id="smW" min="3" max="30" value="11"><span class="val" id="smWv">11 × 22</span></div>
+    <div class="srow"><label style="color:#6496ff">Char gap</label><input type="range" id="dateGap" min="0" max="20" value="3"><span class="val" id="dateGapv">3</span></div>
     <div class="srow"><label style="color:#6496ff">Slash W</label><input type="range" id="smSepW" min="2" max="20" value="5"><span class="val" id="smSepWv">5</span></div>
   </div>
 
@@ -95,8 +102,8 @@ button.copy-btn:active { opacity: 0.75; }
   <div class="section">
     <div class="section-title" style="color:#64ff96">Time row (HH:MM:SS)</div>
     <div class="srow"><label style="color:#64ff96">Y pos</label><input type="range" id="timeY" min="300" max="500" value="384"><span class="val" id="timeYv">384</span></div>
-    <div class="srow"><label style="color:#64ff96">X start</label><input type="range" id="timeX0" min="0" max="600" value="421"><span class="val" id="timeX0v">421</span></div>
-    <div class="srow"><label style="color:#64ff96">Char gap</label><input type="range" id="timeGap" min="0" max="20" value="2"><span class="val" id="timeGapv">2</span></div>
+    <div class="srow"><label style="color:#64ff96">X start</label><input type="range" id="timeX0" min="0" max="600" value="424"><span class="val" id="timeX0v">424</span></div>
+    <div class="srow"><label style="color:#64ff96">Char gap</label><input type="range" id="timeGap" min="0" max="20" value="4"><span class="val" id="timeGapv">4</span></div>
     <div class="srow"><label style="color:#64ff96">Colon W</label><input type="range" id="smColonW" min="2" max="20" value="5"><span class="val" id="smColonWv">5</span></div>
   </div>
 
@@ -132,13 +139,13 @@ var SM_SEP_NATURAL = { slash: { w: 80, h: 80 }, colon: { w: 62, h: 62 } };
 var LG_NATURAL = { w: 72, h: 99 };   // lg0..9
 
 var S = {
-  LG_W: 17,
-  NUMS_Y: 484, numsX0: 77,
-  numPairGap: 3, numGroupGap: 20, pbGap: 230,
+  LG_W: 19,
+  NUMS_Y: 484, numsX0: 86,
+  numPairGap: 8, numGroupGap: 28, pbGap: 109,
 
-  SM_W: 7,
-  DATE_Y: 384, dateX0: 283, dateGap: 2, smSepW: 5,
-  TIME_Y: 384, timeX0: 421, timeGap: 2, smColonW: 5,
+  SM_W: 11,
+  DATE_Y: 384, dateX0: 286, dateGap: 3, smSepW: 5,
+  TIME_Y: 384, timeX0: 424, timeGap: 4, smColonW: 5,
 };
 
 // Derived heights (aspect-locked)
@@ -375,6 +382,17 @@ function copyConfig() {
     m.classList.add('show');
     setTimeout(function() { m.classList.remove('show'); }, 1800);
   });
+}
+
+// ── Background toggle ─────────────────────────────────────────────────────
+var showingBlank = false;
+function toggleBg() {
+  showingBlank = !showingBlank;
+  var bg = document.getElementById('bg');
+  var btn = document.getElementById('bgToggle');
+  bg.src = showingBlank ? 'Lotto%20Blank/lotto.png' : 'lotto-example.jpeg';
+  btn.textContent = showingBlank ? 'Show Example' : 'Show Blank';
+  bg.onload = buildOverlays;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────

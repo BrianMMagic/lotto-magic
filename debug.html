@@ -134,9 +134,10 @@ button.copy-btn:active { opacity: 0.75; }
 
 <script>
 // Natural pixel dimensions of the cropped assets
-var SM_NATURAL = { w: 30, h: 59 };   // sm0..9
-var SM_SEP_NATURAL = { slash: { w: 80, h: 80 }, colon: { w: 62, h: 62 } };
-var LG_NATURAL = { w: 72, h: 99 };   // lg0..9
+var SM_NATURAL = { w: 30, h: 59 };
+var SM_SEP_NATURAL = { slash: { w: 26, h: 60 }, colon: { w: 8, h: 42 } };
+var LG_NATURAL = { w: 72, h: 99 };
+var LG_SEP_NATURAL = { slash: { w: 47, h: 97 }, colon: { w: 18, h: 70 } };
 
 var S = {
   LG_W: 19,
@@ -153,6 +154,8 @@ function lgH() { return Math.round(S.LG_W * LG_NATURAL.h / LG_NATURAL.w); }
 function smH() { return Math.round(S.SM_W * SM_NATURAL.h / SM_NATURAL.w); }
 function slashH() { return Math.round(S.smSepW * SM_SEP_NATURAL.slash.h / SM_SEP_NATURAL.slash.w); }
 function colonH() { return Math.round(S.smColonW * SM_SEP_NATURAL.colon.h / SM_SEP_NATURAL.colon.w); }
+function lgSlashH() { return Math.round(S.smSepW * LG_SEP_NATURAL.slash.h / LG_SEP_NATURAL.slash.w); }
+function lgColonH() { return Math.round(S.smColonW * LG_SEP_NATURAL.colon.h / LG_SEP_NATURAL.colon.w); }
 
 // Image cache
 var smImgs = {}, lgImgs = {};

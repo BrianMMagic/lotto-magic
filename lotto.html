@@ -153,7 +153,9 @@ function generate() {
             ctx.drawImage(imgs[i++], timeX[k], TIME_Y, w, h);
         }
         for (var k = 0; k < numsX.length; k++) {
-            ctx.drawImage(imgs[i++], numsX[k], NUMS_Y, LG_W, LG_H);
+            var imgEl = imgs[i++];
+            var drawW = Math.round(imgEl.naturalWidth * LG_H / imgEl.naturalHeight);
+            ctx.drawImage(imgEl, numsX[k], NUMS_Y, drawW, LG_H);
         }
 
         if (document.getElementById('dbg').checked) {

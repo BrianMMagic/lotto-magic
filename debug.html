@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lotto Coordinate Tuner</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: monospace; background: #1a1a2e; color: #eee; display: flex; height: 100vh; overflow: hidden; }
+
+#sidebar {
+  width: 290px; min-width: 290px; background: #12122a; padding: 13px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 11px; border-right: 1px solid #333;
+}
+#sidebar h1 { font-size: 0.9em; color: #e63946; letter-spacing: 1px; }
+
+.section { display: flex; flex-direction: column; gap: 4px; }
+.section-title {
+  font-size: 0.66em; color: #888; text-transform: uppercase; letter-spacing: 1px;
+  border-bottom: 1px solid #2a2a40; padding-bottom: 3px; margin-bottom: 1px;
+}
+
+.srow { display: flex; align-items: center; gap: 5px; font-size: 0.74em; }
+.srow label { width: 76px; color: #aaa; flex-shrink: 0; font-size: 0.95em; }
+.srow input[type=range] { flex: 1; accent-color: #e63946; height: 14px; }
+.srow .val { width: 28px; text-align: right; color: #fff; }
+
+#output {
+  background: #0d0d1a; border: 1px solid #2a2a40; border-radius: 4px;
+  padding: 8px; font-size: 0.65em; color: #4fc; white-space: pre; overflow-x: auto; line-height: 1.55;
+}
+
+button.copy-btn {
+  background: #e63946; color: #fff; border: none; border-radius: 6px;
+  padding: 6px 12px; font-size: 0.78em; cursor: pointer; font-family: monospace; font-weight: bold;
+}
+button.copy-btn:active { opacity: 0.75; }
+.copied { color: #4fc; font-size: 0.7em; opacity: 0; transition: opacity 0.3s; }
+.copied.show { opacity: 1; }
+.hint { font-size: 0.63em; color: #555; line-height: 1.6; }
+
+#main { flex: 1; overflow: auto; padding: 14px; }
+#stage { position: relative; display: inline-block; }
+#bg { display: block; max-height: calc(100vh - 28px); width: auto; }
+
+.ov {
+  position: absolute; cursor: ew-resize; user-select: none; image-rendering: pixelated;
+}
+.ov img { display: block; width: 100%; height: 100%; pointer-events: none; }
+.ov.date-digit { outline: 1px solid rgba(100,150,255,0.55); }
+.ov.time-digit { outline: 1px solid rgba(100,255,150,0.55); }
+.ov.num-digit  { outline: 1px solid rgba(255,100,100,0.55); }
+
+.xlbl {
+  position: absolute; top: -11px; left: 0;
+  font-size: 7px; font-family: monospace; pointer-events: none;
+  background: rgba(0,0,0,0.65); padding: 1px 2px; border-radius: 2px; white-space: nowrap;
+}
+.date-digit .xlbl { color: #6496ff; }
+.time-digit .xlbl { color: #64ff96; }
+.num-digit  .xlbl { color: #ff6464; }
+
+.row-bar {
+  position: absolute; left: 0; width: 100%; height: 4px;
+  border-radius: 2px; opacity: 0.5; cursor: ns-resize; z-index: 60;
+}
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <h1>LOTTO COORD TUNER</h1>
+
+  <!-- Numbers row -->
+  <div class="section">
+    <div class="section-title" style="color:#ff8080">Numbers row</div>
+    <div class="srow"><label style="color:#ff8080">Y pos</label><input type="range" id="numsY" min="350" max="620" value="484"><span class="val" id="numsYv">484</span></div>
+    <div class="srow"><label style="color:#ff8080">X start</label><input type="range" id="numsX0" min="0" max="300" value="77"><span class="val" id="numsX0v">77</span></div>
+    <div class="srow"><label style="color:#ff8080">Width</label><input type="range" id="lgW" min="6" max="60" value="17"><span class="val" id="lgWv">17 × 23</span></div>
+    <div class="srow"><label style="color:#ff8080">Pair gap</label><input type="range" id="numPairGap" min="0" max="30" value="3"><span class="val" id="numPairGapv">3</span></div>
+    <div class="srow"><label style="color:#ff8080">Group gap</label><input type="range" id="numGroupGap" min="0" max="60" value="20"><span class="val" id="numGroupGapv">20</span></div>
+    <div class="srow"><label style="color:#ff8080">PB gap</label><input type="range" id="pbGap" min="0" max="250" value="230"><span class="val" id="pbGapv">230</span></div>
+  </div>
+
+  <!-- Date row -->
+  <div class="section">
+    <div class="section-title" style="color:#6496ff">Date row (MM/DD/YYYY)</div>
+    <div class="srow"><label style="color:#6496ff">Y pos</label><input type="range" id="dateY" min="300" max="500" value="384"><span class="val" id="dateYv">384</span></div>
+    <div class="srow"><label style="color:#6496ff">X start</label><input type="range" id="dateX0" min="0" max="500" value="283"><span class="val" id="dateX0v">283</span></div>
+    <div class="srow"><label style="color:#6496ff">Width</label><input type="range" id="smW" min="3" max="30" value="7"><span class="val" id="smWv">7 × 14</span></div>
+    <div class="srow"><label style="color:#6496ff">Char gap</label><input type="range" id="dateGap" min="0" max="20" value="2"><span class="val" id="dateGapv">2</span></div>
+    <div class="srow"><label style="color:#6496ff">Slash W</label><input type="range" id="smSepW" min="2" max="20" value="5"><span class="val" id="smSepWv">5</span></div>
+  </div>
+
+  <!-- Time row -->
+  <div class="section">
+    <div class="section-title" style="color:#64ff96">Time row (HH:MM:SS)</div>
+    <div class="srow"><label style="color:#64ff96">Y pos</label><input type="range" id="timeY" min="300" max="500" value="384"><span class="val" id="timeYv">384</span></div>
+    <div class="srow"><label style="color:#64ff96">X start</label><input type="range" id="timeX0" min="0" max="600" value="421"><span class="val" id="timeX0v">421</span></div>
+    <div class="srow"><label style="color:#64ff96">Char gap</label><input type="range" id="timeGap" min="0" max="20" value="2"><span class="val" id="timeGapv">2</span></div>
+    <div class="srow"><label style="color:#64ff96">Colon W</label><input type="range" id="smColonW" min="2" max="20" value="5"><span class="val" id="smColonWv">5</span></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Config Output</div>
+    <div id="output"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:5px;">
+      <button class="copy-btn" onclick="copyConfig()">Copy Config</button>
+      <span class="copied" id="copiedMsg">Copied!</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="hint">
+      Drag any digit left/right → shifts whole row X<br>
+      Drag colored bar up/down → adjusts row Y<br>
+      Width slider locks aspect ratio (no stretch)<br>
+      Blue = date &nbsp; Green = time &nbsp; Red = numbers
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="stage">
+    <img id="bg" src="lotto example.jpeg" alt="ticket">
+  </div>
+</div>
+
+<script>
+// Natural pixel dimensions of the cropped assets
+var SM_NATURAL = { w: 30, h: 59 };   // sm0..9
+var SM_SEP_NATURAL = { slash: { w: 80, h: 80 }, colon: { w: 62, h: 62 } };
+var LG_NATURAL = { w: 72, h: 99 };   // lg0..9
+
+var S = {
+  LG_W: 17,
+  NUMS_Y: 484, numsX0: 77,
+  numPairGap: 3, numGroupGap: 20, pbGap: 230,
+
+  SM_W: 7,
+  DATE_Y: 384, dateX0: 283, dateGap: 2, smSepW: 5,
+  TIME_Y: 384, timeX0: 421, timeGap: 2, smColonW: 5,
+};
+
+// Derived heights (aspect-locked)
+function lgH() { return Math.round(S.LG_W * LG_NATURAL.h / LG_NATURAL.w); }
+function smH() { return Math.round(S.SM_W * SM_NATURAL.h / SM_NATURAL.w); }
+function slashH() { return Math.round(S.smSepW * SM_SEP_NATURAL.slash.h / SM_SEP_NATURAL.slash.w); }
+function colonH() { return Math.round(S.smColonW * SM_SEP_NATURAL.colon.h / SM_SEP_NATURAL.colon.w); }
+
+// Image cache
+var smImgs = {}, lgImgs = {};
+var loaded = 0;
+var KEYS = ['0','1','2','3','4','5','6','7','8','9','slash','colon'];
+var needed = KEYS.length * 2;
+
+function preload(done) {
+  KEYS.forEach(function(k) {
+    var s = new Image();
+    s.src = 'cropped/small/sm' + k + '.png';
+    s.onload = s.onerror = function() { smImgs[k] = s.naturalWidth ? s : null; chk(); };
+    var l = new Image();
+    l.src = 'cropped/large/lg' + k + '.png';
+    l.onload = l.onerror = function() { lgImgs[k] = l.naturalWidth ? l : null; chk(); };
+  });
+  function chk() { if (++loaded >= needed) done(); }
+}
+
+function sc() {
+  var bg = document.getElementById('bg');
+  return bg.clientWidth / 699;
+}
+
+// ── X layout calculators ──────────────────────────────────────────────────
+// Date: d d / d d / d d d d  (10 slots)
+function computeDateX() {
+  var xs = [], x = S.dateX0, g = S.dateGap;
+  var W = S.SM_W, sep = S.smSepW;
+  [W,W,sep,W,W,sep,W,W,W,W].forEach(function(w) { xs.push(Math.round(x)); x += w + g; });
+  return xs;
+}
+// Time: d d : d d : d d  (8 slots)
+function computeTimeX() {
+  var xs = [], x = S.timeX0, g = S.timeGap;
+  var W = S.SM_W, sep = S.smColonW;
+  [W,W,sep,W,W,sep,W,W].forEach(function(w) { xs.push(Math.round(x)); x += w + g; });
+  return xs;
+}
+// Nums: 5 pairs + PB pair  (12 slots)
+function computeNumsX() {
+  var xs = [], x = S.numsX0;
+  var W = S.LG_W, pg = S.numPairGap, gg = S.numGroupGap;
+  for (var n = 0; n < 5; n++) {
+    xs.push(Math.round(x));
+    xs.push(Math.round(x + W + pg));
+    x += W + pg + W + (n < 4 ? gg : 0);
+  }
+  x += S.pbGap;
+  xs.push(Math.round(x));
+  xs.push(Math.round(x + W + pg));
+  return xs;
+}
+
+// Sample display: 04/26/2026  12:34:56  05 12 23 34 45 | 16
+var dateSeq = ['0','4','slash','2','6','slash','2','0','2','6'];
+var timeSeq = ['1','2','colon','3','4','colon','5','6'];
+var numsSeq = ['0','5','1','2','2','3','3','4','4','5','1','6'];
+
+// ── Overlay management ────────────────────────────────────────────────────
+var overlays = [];
+
+function clearOverlays() {
+  var stage = document.getElementById('stage');
+  overlays.forEach(function(o) { if (o.el.parentNode) stage.removeChild(o.el); });
+  overlays = [];
+  stage.querySelectorAll('.row-bar').forEach(function(el) { stage.removeChild(el); });
+}
+
+function buildOverlays() {
+  clearOverlays();
+  var s = sc();
+  var dX = computeDateX(), tX = computeTimeX(), nX = computeNumsX();
+
+  dateSeq.forEach(function(key, i) {
+    var isSep = key === 'slash';
+    var w = isSep ? S.smSepW : S.SM_W;
+    var h = isSep ? slashH() : smH();
+    makeOv(smImgs[key], dX[i], S.DATE_Y, w, h, 'date', s);
+  });
+  timeSeq.forEach(function(key, i) {
+    var isSep = key === 'colon';
+    var w = isSep ? S.smColonW : S.SM_W;
+    var h = isSep ? colonH() : smH();
+    makeOv(smImgs[key], tX[i], S.TIME_Y, w, h, 'time', s);
+  });
+  numsSeq.forEach(function(key, i) {
+    makeOv(lgImgs[key], nX[i], S.NUMS_Y, S.LG_W, lgH(), 'num', s);
+  });
+
+  makeRowBar('date', S.DATE_Y, smH(),  '#6496ff', s);
+  makeRowBar('time', S.TIME_Y, smH(),  '#64ff96', s);
+  makeRowBar('num',  S.NUMS_Y, lgH(), '#ff6464', s);
+
+  updateOutput();
+}
+
+function makeOv(img, cx, cy, cw, ch, group, s) {
+  var stage = document.getElementById('stage');
+  var el = document.createElement('div');
+  el.className = 'ov ' + group + '-digit';
+  el.style.cssText = 'left:' + (cx*s) + 'px;top:' + (cy*s) + 'px;width:' + (cw*s) + 'px;height:' + (ch*s) + 'px;';
+
+  if (img) {
+    var im = document.createElement('img');
+    im.src = img.src;
+    el.appendChild(im);
+  }
+
+  var lbl = document.createElement('div');
+  lbl.className = 'xlbl';
+  lbl.textContent = cx;
+  el.appendChild(lbl);
+
+  // Dragging shifts the whole row's X0
+  var x0Key = group === 'date' ? 'dateX0' : (group === 'time' ? 'timeX0' : 'numsX0');
+  var slidId = x0Key;
+  var startPx, startVal;
+
+  function down(px) { startPx = px; startVal = S[x0Key]; }
+  function move(px) {
+    S[x0Key] = startVal + Math.round((px - startPx) / sc());
+    var sl = document.getElementById(slidId);
+    if (sl) { sl.value = S[x0Key]; document.getElementById(slidId+'v').textContent = S[x0Key]; }
+    buildOverlays();
+  }
+
+  el.addEventListener('mousedown', function(e) {
+    e.preventDefault(); e.stopPropagation(); down(e.clientX);
+    function mm(e2) { move(e2.clientX); }
+    function mu() { window.removeEventListener('mousemove', mm); window.removeEventListener('mouseup', mu); }
+    window.addEventListener('mousemove', mm); window.addEventListener('mouseup', mu);
+  });
+  el.addEventListener('touchstart', function(e) {
+    e.preventDefault(); down(e.touches[0].clientX);
+    function tm(e2) { move(e2.touches[0].clientX); }
+    function tu() { el.removeEventListener('touchmove', tm); el.removeEventListener('touchend', tu); }
+    el.addEventListener('touchmove', tm, {passive:false}); el.addEventListener('touchend', tu);
+  }, {passive:false});
+
+  stage.appendChild(el);
+  overlays.push({el: el});
+}
+
+function makeRowBar(group, cy, ch, color, s) {
+  var stage = document.getElementById('stage');
+  var el = document.createElement('div');
+  el.className = 'row-bar';
+  el.style.cssText = 'top:' + ((cy + ch + 3) * s) + 'px;background:' + color + ';';
+
+  var yKey = group === 'num' ? 'NUMS_Y' : (group === 'date' ? 'DATE_Y' : 'TIME_Y');
+  var slidId = group === 'num' ? 'numsY' : (group === 'date' ? 'dateY' : 'timeY');
+  var startPy, startVal;
+
+  el.addEventListener('mousedown', function(e) {
+    e.preventDefault(); startPy = e.clientY; startVal = S[yKey];
+    function mm(e2) {
+      S[yKey] = startVal + Math.round((e2.clientY - startPy) / sc());
+      document.getElementById(slidId).value = S[yKey];
+      document.getElementById(slidId+'v').textContent = S[yKey];
+      buildOverlays();
+    }
+    function mu() { window.removeEventListener('mousemove', mm); window.removeEventListener('mouseup', mu); }
+    window.addEventListener('mousemove', mm); window.addEventListener('mouseup', mu);
+  });
+  stage.appendChild(el);
+}
+
+// ── Sliders ───────────────────────────────────────────────────────────────
+var sliders = [
+  // [id, valId, stateKey, customDisplay]
+  ['numsY',      'numsYv',      'NUMS_Y',      null],
+  ['numsX0',     'numsX0v',     'numsX0',      null],
+  ['lgW',        'lgWv',        'LG_W',        function() { return S.LG_W + ' × ' + lgH(); }],
+  ['numPairGap', 'numPairGapv', 'numPairGap',  null],
+  ['numGroupGap','numGroupGapv','numGroupGap',  null],
+  ['pbGap',      'pbGapv',      'pbGap',       null],
+  ['dateY',      'dateYv',      'DATE_Y',      null],
+  ['dateX0',     'dateX0v',     'dateX0',      null],
+  ['smW',        'smWv',        'SM_W',        function() { return S.SM_W + ' × ' + smH(); }],
+  ['dateGap',    'dateGapv',    'dateGap',     null],
+  ['smSepW',     'smSepWv',     'smSepW',      null],
+  ['timeY',      'timeYv',      'TIME_Y',      null],
+  ['timeX0',     'timeX0v',     'timeX0',      null],
+  ['timeGap',    'timeGapv',    'timeGap',     null],
+  ['smColonW',   'smColonWv',   'smColonW',    null],
+];
+
+sliders.forEach(function(def) {
+  var el = document.getElementById(def[0]);
+  var vEl = document.getElementById(def[1]);
+  el.addEventListener('input', function() {
+    S[def[2]] = +el.value;
+    vEl.textContent = def[3] ? def[3]() : el.value;
+    buildOverlays();
+  });
+});
+
+// ── Output ────────────────────────────────────────────────────────────────
+function fmt(arr) { return '[' + arr.join(', ') + ']'; }
+
+function updateOutput() {
+  var dX = computeDateX(), tX = computeTimeX(), nX = computeNumsX();
+  var lines = [
+    'var LG_W = ' + S.LG_W + ', LG_H = ' + lgH() + ';',
+    'var SM_W = ' + S.SM_W + ', SM_H = ' + smH() + ';',
+    'var SM_SEP_W = ' + S.smSepW + ', SM_SEP_H = ' + slashH() + ';',
+    'var SM_COLON_W = ' + S.smColonW + ', SM_COLON_H = ' + colonH() + ';',
+    '',
+    'var DATE_Y = ' + S.DATE_Y + ';',
+    'var TIME_Y = ' + S.TIME_Y + ';',
+    'var NUMS_Y = ' + S.NUMS_Y + ';',
+    '',
+    '// date: d d / d d / d d d d',
+    'var dateX = ' + fmt(dX) + ';',
+    '// time: d d : d d : d d',
+    'var timeX = ' + fmt(tX) + ';',
+    '// nums: N1t N1o...N5t N5o PBt PBo',
+    'var numsX = ' + fmt(nX) + ';',
+  ];
+  document.getElementById('output').textContent = lines.join('\n');
+}
+
+function copyConfig() {
+  navigator.clipboard.writeText(document.getElementById('output').textContent).then(function() {
+    var m = document.getElementById('copiedMsg');
+    m.classList.add('show');
+    setTimeout(function() { m.classList.remove('show'); }, 1800);
+  });
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+window.addEventListener('resize', buildOverlays);
+var bg = document.getElementById('bg');
+function init() { preload(buildOverlays); }
+if (bg.complete) init(); else bg.onload = init;
+</script>
+</body>
+</html>

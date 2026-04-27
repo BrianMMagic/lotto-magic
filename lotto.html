@@ -102,6 +102,7 @@ var slots = [];
 var currentInput = '';
 var accumulator = 0;
 var dotTimer = null;
+var previewWin = null;
 
 function dispUpdate(val) {
   var el = document.getElementById('disp-text');
@@ -158,8 +159,7 @@ function handleKey(key) {
     if (isNaN(n)) return;
     slots.push(n);
     ids.forEach(function(id, i) { document.getElementById(id).value = slots[i]; });
-    document.getElementById('calc-wrap').style.display = 'none';
-    document.getElementById('canvas-wrap').style.display = 'block';
+    previewWin = window.open('', '_blank');
     generate();
     return;
   }
@@ -298,8 +298,14 @@ function generate() {
             });
         }
 
-        canvas.style.display = 'block';
-        document.getElementById('hint').style.display = 'block';
+        if (previewWin) {
+            var dataUrl = canvas.toDataURL('image/png');
+            previewWin.document.write('<body style="margin:0;background:#000"><img src="' + dataUrl + '" style="width:100%"></body>');
+            previewWin = null;
+        } else {
+            canvas.style.display = 'block';
+            document.getElementById('hint').style.display = 'block';
+        }
     }).catch(function(err) {
         alert('Error rendering ticket: ' + (err && err.message ? err.message : err));
     });

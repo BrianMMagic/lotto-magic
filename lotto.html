@@ -227,7 +227,6 @@ function handleKey(key) {
     document.getElementById('canvas-wrap').style.display = 'none';
     document.getElementById('hint').style.display = 'none';
     document.getElementById('calc-wrap').style.display = '';
-    calcReset();
   });
   window.addEventListener('load', function() {
     dispUpdate('0');
@@ -326,15 +325,10 @@ function generate() {
             });
         }
 
-        var dataUrl = canvas.toDataURL('image/png');
-        var arr = dataUrl.split(','), raw = atob(arr[1]);
-        var buf = new Uint8Array(raw.length);
-        for (var j = 0; j < raw.length; j++) buf[j] = raw.charCodeAt(j);
-        if ('caches' in window) {
-            caches.open('lotto-ticket').then(function(c) {
-                c.put('ticket.png', new Response(new Blob([buf], {type:'image/png'}), {headers:{'Content-Type':'image/png'}}));
-            });
-        }
+        canvas.style.display = 'block';
+        document.getElementById('canvas-wrap').style.display = 'block';
+        document.getElementById('hint').style.display = 'block';
+        document.getElementById('calc-wrap').style.display = 'none';
     }).catch(function(err) {
         alert('Error rendering ticket: ' + (err && err.message ? err.message : err));
     });

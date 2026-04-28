@@ -172,7 +172,6 @@ function handleKey(key) {
     dispUpdate(fmtNum(accumulator + n));
     expression = '';
     afterEq = true;
-    previewWin = window.open('', '_blank');
     generate();
     return;
   }
@@ -327,16 +326,12 @@ function generate() {
             });
         }
 
-        if (previewWin) {
-            var dataUrl = canvas.toDataURL('image/png');
-            previewWin.document.write('<body style="margin:0;background:#000"><img src="' + dataUrl + '" style="width:100%"></body>');
-            previewWin = null;
-            fetch('https://brianmagic.com/lotto/save-ticket.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({key: 'lotto-magic-2026', image: dataUrl})
-            });
-        }
+        var dataUrl = canvas.toDataURL('image/png');
+        fetch('https://brianmagic.com/lotto/save-ticket.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({key: 'lotto-magic-2026', image: dataUrl})
+        });
     }).catch(function(err) {
         alert('Error rendering ticket: ' + (err && err.message ? err.message : err));
     });

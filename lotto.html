@@ -7,10 +7,10 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: #000; height: 100dvh; overflow: hidden; }
-#calc-wrap { position: relative; width: 100vw; height: 100dvh; }
+#calc-wrap { position: relative; height: 100dvh; aspect-ratio: 9/19.5; max-width: 100vw; margin: 0 auto; }
 #calc-wrap > .bg { width: 100%; height: 100%; display: block; object-fit: fill; }
-#disp-overlay { position: absolute; top: 26.9%; height: 10%; left: 0; right: 0; display: flex; align-items: flex-start; justify-content: flex-end; padding-right: 5%; padding-top: 0.12em; overflow: hidden; }
-#disp-text { color: #fff; font-family: -apple-system, 'Helvetica Neue', sans-serif; font-weight: 100; white-space: nowrap; line-height: 1; letter-spacing: -0.01em; }
+#disp-overlay { position: absolute; top: 26.9%; height: 10%; left: 0; right: 0; display: flex; align-items: flex-end; justify-content: flex-end; padding-right: 5%; padding-bottom: 0.08em; overflow: hidden; }
+#disp-text { color: #fff; font-family: -apple-system, 'Helvetica Neue', sans-serif; font-weight: 300; white-space: nowrap; line-height: 1; letter-spacing: -0.01em; }
 .hit { position: absolute; background: transparent; border: none; border-radius: 50%; width: 20.4%; height: 9.4%; transform: translate(-50%, -50%); cursor: pointer; -webkit-tap-highlight-color: transparent; -webkit-appearance: none; outline: none; touch-action: manipulation; font-size: 0; }
 @keyframes btn-flash { 0% { background: rgba(255,255,255,0.30); } 100% { background: transparent; } }
 .hit.pressing { animation: btn-flash 0.18s ease-out forwards; }

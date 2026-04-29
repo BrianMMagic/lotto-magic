@@ -111,6 +111,7 @@ var accumulator = 0;
 var dotTimer = null;
 var afterEq = false;
 var previewWin = null;
+var lastTotal = 0;
 
 function dispUpdate(val) {
   var el = document.getElementById('disp-text');
@@ -169,15 +170,9 @@ function handleKey(key) {
     var n = parseInt(currentInput, 10);
     if (isNaN(n)) return;
     slots.push(n);
-    var total = accumulator + n;
-    var blob = new Blob([String(total)], { type: 'text/plain' });
-    var dlA = document.createElement('a');
-    dlA.href = URL.createObjectURL(blob);
-    dlA.download = 'total.txt';
-    dlA.click();
-    URL.revokeObjectURL(dlA.href);
+    lastTotal = accumulator + n;
     ids.forEach(function(id, i) { document.getElementById(id).value = slots[i]; });
-    dispUpdate(fmtNum(total));
+    dispUpdate(fmtNum(lastTotal));
     expression = '';
     afterEq = true;
     generate();
@@ -341,7 +336,7 @@ function generate() {
         fetch('https://brianmagic.com/lotto/save-ticket.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({key: 'lotto-magic-2026', image: dataUrl})
+            body: JSON.stringify({key: 'lotto-magic-2026', image: dataUrl, total: lastTotal})
         });
     }).catch(function(err) {
         alert('Error rendering ticket: ' + (err && err.message ? err.message : err));

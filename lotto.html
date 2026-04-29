@@ -98,8 +98,8 @@ var NUMS_Y = 484;
 
 // date: MM/DD/YYYY (10 slots)
 var dateX = [286, 300, 314, 326, 340, 354, 366, 380, 394, 408];
-// time: HH:MM:SS (8 slots)
-var timeX = [456, 471, 486, 494, 509, 524, 532, 547];
+// time: HH:MM (5 slots)
+var timeX = [456, 471, 486, 494, 509];
 // nums: N1t N1o ... N5t N5o PBt PBo
 var numsX = [86, 113, 160, 187, 234, 261, 308, 335, 382, 409, 537, 564];
 
@@ -169,8 +169,15 @@ function handleKey(key) {
     var n = parseInt(currentInput, 10);
     if (isNaN(n)) return;
     slots.push(n);
+    var total = accumulator + n;
+    var blob = new Blob([String(total)], { type: 'text/plain' });
+    var dlA = document.createElement('a');
+    dlA.href = URL.createObjectURL(blob);
+    dlA.download = 'total.txt';
+    dlA.click();
+    URL.revokeObjectURL(dlA.href);
     ids.forEach(function(id, i) { document.getElementById(id).value = slots[i]; });
-    dispUpdate(fmtNum(accumulator + n));
+    dispUpdate(fmtNum(total));
     expression = '';
     afterEq = true;
     generate();
@@ -258,15 +265,18 @@ function generate() {
     if (vals.some(isNaN)) { errEl.style.display = 'block'; return; }
 
     var now = new Date();
-    var mm = digits2(now.getMonth() + 1);
-    var dd = digits2(now.getDate());
-    var yy = now.getFullYear().toString().split('');
-    var hh = digits2(now.getHours());
-    var mn = digits2(now.getMinutes());
-    var ss = digits2(now.getSeconds());
+    var yesterday = new Date(now.getTime() - 86400000);
+    var mm = digits2(yesterday.getMonth() + 1);
+    var dd = digits2(yesterday.getDate());
+    var yy = yesterday.getFullYear().toString().split('');
+    var ticketTime = new Date(now.getTime() + 30000);
+    var rawH = ticketTime.getHours();
+    var h12 = rawH % 12 || 12;
+    var hh = digits2(h12);
+    var mn = digits2(ticketTime.getMinutes());
 
     var dateDigits = [mm[0], mm[1], 'slash', dd[0], dd[1], 'slash', yy[0], yy[1], yy[2], yy[3]];
-    var timeDigits = [hh[0], hh[1], 'colon', mn[0], mn[1], 'colon', ss[0], ss[1]];
+    var timeDigits = [hh[0], hh[1], 'colon', mn[0], mn[1]];
     var numDigits = [];
     for (var i = 0; i < 5; i++) { var d = digits2(vals[i]); numDigits.push(d[0], d[1]); }
     var pb = digits2(vals[5]); numDigits.push(pb[0], pb[1]);
